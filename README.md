@@ -1,2 +1,2 @@
 # Amazon-Scraper
-Just try to scrape amazon))
+Just try to scrape Amazon))
