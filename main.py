@@ -1,6 +1,7 @@
 import asyncio
 from playwright.async_api import async_playwright
 from sqlDatabase import setupSQL, deletePages, setPages, getPages
+from googleSheetsDatabase import addRowIntoGoogleSheets
 
 async def scrape():
     await setupSQL()
@@ -18,6 +19,7 @@ async def scrape():
         allProducts = await page.query_selector_all('div[data-component-type="s-search-result"]')
 
         while True:
+            productsData = []
 
             for product in allProducts:
                 titleObject = await product.query_selector(
@@ -46,7 +48,10 @@ async def scrape():
                 else:
                     cost = "Haven`t cost yet"
 
-                print('https://www.amazon.com' + url, title, options, rate, cost)
+                productData = ['https://www.amazon.com' + url, title, options, rate, cost]
+                print(productData)
+                print(productsData)
+                productsData.append(productData)
                 await page.wait_for_timeout(2000)
 
             nextBtn = await page.query_selector('a[class="s-pagination-item s-pagination-next s-pagination-button s-pagination-button-accessibility s-pagination-separator"]')
@@ -56,6 +61,7 @@ async def scrape():
                 pages = await getPages()
                 print(pages)
                 await setPages(pages + 1)
+                await addRowIntoGoogleSheets(productsData)
             else:
                 await deletePages()
                 break
